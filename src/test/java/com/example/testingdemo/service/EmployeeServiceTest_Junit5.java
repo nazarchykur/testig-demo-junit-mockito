@@ -8,7 +8,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
@@ -19,7 +18,7 @@ import static org.mockito.Mockito.when;
 //@RunWith(MockitoJUnitRunner.class) // Junit 4
 //@ExtendWith(SpringExtension.class) // works with Junit 5
 @ExtendWith(MockitoExtension.class) // works with Junit 5
-class EmployeeServiceTest {
+class EmployeeServiceTest_Junit5 {
 
     @Mock
     private ModelMapper modelMapper;
