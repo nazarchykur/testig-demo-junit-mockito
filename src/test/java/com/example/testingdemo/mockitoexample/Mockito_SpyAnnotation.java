@@ -55,7 +55,10 @@ public class Mockito_SpyAnnotation {
 
 class Utils {
     
-    // for example if we do not have a default constructor
+    /*
+            for example if we do not have a default constructor to show 
+            org.mockito.exceptions.base.MockitoException: Unable to initialize @Spy annotated field 'mockUtils'.
+     */
     
 //    private int a;
 //
