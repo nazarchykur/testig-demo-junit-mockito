@@ -1,4 +1,4 @@
-package com.example.testingdemo.model;
+package com.example.testingdemo.employeeproj.model;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

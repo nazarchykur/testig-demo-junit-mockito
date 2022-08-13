@@ -1,7 +1,5 @@
 package com.example.testingdemo;
 
-import com.example.testingdemo.model.Employee;
-import com.example.testingdemo.repository.EmployeeRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;

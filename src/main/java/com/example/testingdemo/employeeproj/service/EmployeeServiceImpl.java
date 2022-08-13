@@ -1,10 +1,10 @@
-package com.example.testingdemo.service;
+package com.example.testingdemo.employeeproj.service;
 
-import com.example.testingdemo.dto.EmployeeDtoRequest;
-import com.example.testingdemo.dto.EmployeeDtoResponse;
-import com.example.testingdemo.exception.NoSuchElementFoundException;
-import com.example.testingdemo.model.Employee;
-import com.example.testingdemo.repository.EmployeeRepository;
+import com.example.testingdemo.employeeproj.dto.EmployeeDtoRequest;
+import com.example.testingdemo.employeeproj.dto.EmployeeDtoResponse;
+import com.example.testingdemo.employeeproj.exception.NoSuchElementFoundException;
+import com.example.testingdemo.employeeproj.model.Employee;
+import com.example.testingdemo.employeeproj.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;

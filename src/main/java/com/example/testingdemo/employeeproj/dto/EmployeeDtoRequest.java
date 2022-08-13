@@ -1,4 +1,4 @@
-package com.example.testingdemo.dto;
+package com.example.testingdemo.employeeproj.dto;
 
 import lombok.Getter;
 

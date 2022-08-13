@@ -1,8 +1,9 @@
 package com.example.testingdemo.service;
 
-import com.example.testingdemo.dto.EmployeeDtoResponse;
-import com.example.testingdemo.model.Employee;
-import com.example.testingdemo.repository.EmployeeRepository;
+import com.example.testingdemo.employeeproj.dto.EmployeeDtoResponse;
+import com.example.testingdemo.employeeproj.model.Employee;
+import com.example.testingdemo.employeeproj.repository.EmployeeRepository;
+import com.example.testingdemo.employeeproj.service.EmployeeServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
