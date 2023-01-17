@@ -105,7 +105,7 @@ public class PlayerStatisticsTest_usingAssertJ {
         assertArrayEquals(expectedArray, statistics.createScvRecord());
 
         // using assertJ
-        assertThat(statistics.createScvRecord()).isEqualTo(expectedArray);
+        assertThat(statistics.createScvRecord()). isEqualTo(expectedArray);
     }
 
 }

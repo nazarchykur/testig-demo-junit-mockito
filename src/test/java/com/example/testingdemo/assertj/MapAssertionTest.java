@@ -71,13 +71,14 @@ class MapAssertionTest {
         map.put("leo", 1);
         map.put("don", 2);
 
-        assertThat(map).isNotEmpty()
+        assertThat(map)
+                .isNotEmpty()
                 .size()
-                .isGreaterThan(1)
-                .isLessThan(3)
+                    .isGreaterThan(1)
+                    .isLessThan(3)
                 .returnToMap()
-                .containsKeys("leo", "don")
-                .containsEntry("leo", 1);
+                    .containsKeys("leo", "don")
+                    .containsEntry("leo", 1);
     }
 
 }

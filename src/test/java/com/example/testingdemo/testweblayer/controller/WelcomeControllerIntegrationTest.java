@@ -1,24 +1,24 @@
-package com.example.testingdemo.service;
+package com.example.testingdemo.testweblayer.controller;
 
-import com.example.testingdemo.employeeproj.model.Employee;
-import com.example.testingdemo.employeeproj.repository.EmployeeRepository;
-import com.example.testingdemo.employeeproj.service.EmployeeServiceImpl;
+import com.example.testingdemo.testweblayer.service.WelcomeService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /*
-
+    
+    
     What is the difference between @ExtendWith(SpringExtension.class) and @ExtendWith(MockitoExtension.class)?
 
 
@@ -480,38 +480,202 @@ import static org.mockito.Mockito.when;
                      list.add(100);
                  }
              }
+    
  */
 
-//@RunWith(MockitoJUnitRunner.class) // Junit 4
-//@ExtendWith(SpringExtension.class) // works with Junit 5
-@ExtendWith(MockitoExtension.class) // works with Junit 5
-class EmployeeServiceTest_Junit5 {
+/*
 
-    @Mock
-    private ModelMapper modelMapper;
+    https://rieckpil.de/difference-between-mock-and-mockbean-spring-boot-applications/
 
-    @Mock
-    private EmployeeRepository employeeRepository;
+    @Mock vs. @MockBean
+    
+    Use @Mock when unit testing your business logic (only using JUnit and Mockito). 
+    Use @MockBean when you write a test that is backed by a Spring Test Context and you want to add or replace 
+    a bean with a mocked version of it.
+    
+        When testing some class in isolation we only need two tools: JUnit (4 or 5) and Mockito.
+        
+        While writing unit tests for the StockService , we mock its collaborators. We don't want a change in their 
+        implementation to affect our unit test. In this example, we mock the StockApiClient as our class under test 
+        (short cut) only has one collaborator.
+        
+                @ExtendWith(MockitoExtension.class)
+                class StockServiceTest {
+                 
+                  @Mock
+                  private StockApiClient stockApiClient;
+                 
+                  @InjectMocks
+                  private StockService cut;
+                 
+                  @Test
+                  void shouldReturnDefaultPriceWhenClientThrowsException() {
+                 
+                    when(stockApiClient.getLatestStockPrice("AMZN"))
+                      .thenThrow(new RuntimeException("Remote System Down!"));
+                 
+                    BigDecimal result = cut.getLatestPrice("AMZN");
+                 
+                    assertEquals(BigDecimal.ZERO, result);
+                  }
+                }
+        
+        The test above uses JUnit Jupiter (a module of JUnit 5) and Mockito. With @Mock we instruct Mockito to create 
+        a mock as we don't want a real instance of this class. Mockito's JUnit Jupiter extension will then take care 
+        to instantiate the mock and inject it to our class under test.
+        
+        @InjectMocks Mockito will search for a suitable public constructor to create an instance of our StockService 
+        and pass all mocks (we only have one) to it.
+        
+        
+    
+    Using @MockBean to Add or Replace Beans with a Mock
+    
+        While the previous section was true for using plain JUnit 5 (or JUnit 4) with Mockito and independent of the 
+        application framework, what follows is only applicable for the Spring Framework.
 
-    @InjectMocks
-    private EmployeeServiceImpl serviceUnderTest;
+        With Spring Boot's excellent test support, we can create a custom Spring Context for our test. Most of the time 
+        we either populate the full Spring Context (@SpringBootTest) or use a sliced context 
+        (e.g. @WebMvcTest or @DataJpaTest).  This allows us to test the integration of multiple classes or 
+        for example the web layer in isolation with a mocked Servlet environment.
+        
+        Such tests now use a Spring Test Context. This context is similar to the application context during runtime 
+        as we can request beans from it (@Autowired). Usually, it only contains a subset of our beans (making our tests faster).
+        
+        When starting the Spring Test Context we have to satisfy all dependencies (speak collaborator) of our Spring beans. 
+        We do this by providing an instance of them inside the Spring Context so that Spring can inject them. 
+        Otherwise, the context won't start.
+        
+        As we can customize the Spring Test Context to our needs, we can decide whether we want the actual or a mocked 
+        version of one of our beans inside the context.
+        
+        An example might illustrate this better. Let's say we have the following Spring MVC controller:
+                @RestController
+                @RequestMapping("/api/stocks")
+                public class StockController {
+                
+                  private final StockService stockService;
+                
+                  public StockController(StockService stockService) {
+                    this.stockService = stockService;
+                  }
+                
+                  @GetMapping
+                  public BigDecimal getStockPrice(@RequestParam("stockCode") String stockCode) {
+                    return stockService.getLatestPrice(stockCode);
+                  }
+                }
+            
+        With Spring Boot's @WebMvcTest we can now start a sliced Spring context that includes only beans that are 
+        relevant for our web-layer. As this Test Context also includes a bean of type StockController, we have to 
+        provide a bean of type StockServiceas otherwise, our context won't start.
+        
+        We could add the actual implementation of the StockService, but this would mean that we also have to provide all 
+        collaborators of the StockService . This might end up in a big hierarchy of dependencies that we would have to provide.
+        
+        On the other side, we also want to test our web-layer in isolation and don't care what's going on inside the 
+        StockService for such a test. That's why we use @MockBean here to place a mocked version of StockService inside 
+        the context to satisfy our StockController:
+        
+                @WebMvcTest(StockController.class)
+                class StockControllerTest {
+                
+                  @MockBean
+                  private StockService stockService;
+                
+                  @Autowired
+                  private MockMvc mockMvc;
+                
+                  @Test
+                  void shouldReturnStockPriceFromService() throws Exception {
+                    when(stockService.getLatestPrice("AMZN"))
+                      .thenReturn(BigDecimal.TEN);
+                
+                    this.mockMvc
+                      .perform(get("/api/stocks?stockCode=AMZN"))
+                      .andExpect(status().isOk());
+                  }
+                }
+                
+         The @MockBean annotation is part of Spring Test and will place a mock of type StockService inside the Spring 
+         Test Context. We can then define the behavior of this mock using the well-known Mockito stubbing setup: 
+         when().thenReturn().
+
+        You can use this annotation whenever our test deals with a Spring Context.
+        
+        
+        
+        Let's say we want to write an integration test that involves all our beans. However, we have a 
+        ExpensiveRealtimeStockApiClient that talks to a remote system and we are billed for every API call. 
+        The lazy developer's approach could be to mock this bean for our integration test 
+        (PS: I know that WireMock would fit better here).
+        
+                @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+                class ApplicationTest {
+                
+                  @Autowired
+                  private StockApiClient stockApiClient;
+                
+                  @MockBean
+                  private ExpensiveRealtimeStockApiClient expensiveRealtimeStockApiClient;
+                
+                  @Test
+                  void contextLoadsWithAllBeans() {
+                    // e.g. now use the WebTestClient to access our endpoint
+                  }
+                }
+           
+           
+           
+    General Advice on Using @MockBean for Your Spring Boot Tests
+    
+        Always prefer to write a unit test that makes use of JUnit and Mockito, as they are fast. 
+        As general advice, don't overdo it with @MockBean.
+        
+        However, there are parts of your application where plain unit tests won't add many benefits. 
+        Your controller endpoints are a good example (see Tom Homberg's blog post for a good explanation of this) 
+        and here it definitely makes sense to use a combination of @WebMvcTest and @MockBean.
+        
+        Be aware that whenever you use @MockBean Spring can't reuse an already existing context that includes the 
+        actual bean of this type. This means you'll get a fresh new context (if there isn't a test with a similar setup) 
+        and this adds time to your test execution. If done right, you can improve your build times with 
+        Spring's Context Caching mechanism a lot.
+        
+ */
+
+
+@WebMvcTest(WelcomeController.class)
+class WelcomeControllerIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockBean
+    private WelcomeService welcomeService;
 
     @Test
-    public void getEmployee_2() {
-        when(employeeRepository.findById(1L)).thenReturn(Optional.of(createEmployee()));
+    public void welcome_get_withDefaultName() throws Exception {
+        when(welcomeService.getWelcomeMessage("Stranger")).thenReturn("Welcome Stranger");
 
-        serviceUnderTest.getEmployee(1, true);
+        mockMvc.perform(get("/welcome"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("Welcome Stranger")));
 
-        verify(employeeRepository, only()).findById(1L);
+        verify(welcomeService, only()).getWelcomeMessage("Stranger");
     }
 
-    private Employee createEmployee() {
-        Employee employee = new Employee();
-        employee.setId(1L);
-        employee.setFirstName("FirstName");
-        employee.setLastName("LastName");
-        employee.setEmail("test@gm.com");
+    @Test
+    public void welcome_get_withCustomProvidedName() throws Exception {
+        when(welcomeService.getWelcomeMessage("John")).thenReturn("Welcome John");
 
-        return employee;
+        mockMvc.perform(get("/welcome?name=John"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(equalTo("Welcome John")));
+
+        verify(welcomeService, only()).getWelcomeMessage("John");
     }
+    
+
 }
