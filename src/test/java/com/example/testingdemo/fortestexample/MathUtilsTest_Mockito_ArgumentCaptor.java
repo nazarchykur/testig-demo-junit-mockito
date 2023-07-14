@@ -48,6 +48,7 @@ class MathUtilsTest_Mockito_ArgumentCaptor {
 
         given(mockMathUtils.add(1, 2)).willReturn(3);
 
+
         ArgumentCaptor<Integer> integerArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
