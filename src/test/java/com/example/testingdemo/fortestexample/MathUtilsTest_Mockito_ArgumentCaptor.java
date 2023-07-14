@@ -12,6 +12,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +45,8 @@ class MathUtilsTest_Mockito_ArgumentCaptor {
     void test() {
         when(mockMathUtils.add(1, 2)).thenReturn(3);
         when(mockMathUtils.isInteger(anyString())).thenReturn(true);
+
+        given(mockMathUtils.add(1, 2)).willReturn(3);
 
         ArgumentCaptor<Integer> integerArgumentCaptor = ArgumentCaptor.forClass(Integer.class);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
